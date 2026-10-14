@@ -1,9 +1,8 @@
 package br.com.petshop;
 
-import br.com.petshop.model.Especie;
-import br.com.petshop.model.Pet;
-import br.com.petshop.model.Porte;
-import br.com.petshop.model.Tutor;
+import br.com.petshop.model.*;
+
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -168,5 +167,28 @@ public class Main {
 
         System.out.println("\n=== ESTADO FINAL ===");
         System.out.println(tutor);
+        System.out.println("\\n=== SERVIÇOS ===");
+
+        List<Servico> servicos = List.of(new Banho(), new Tosa(), new Consulta("Dra. Ana Laura"));
+        // 19. Criar lista com os 3 serviços
+        try {
+            for (Servico s : servicos) {
+                System.out.println(s + "\nValor do serviço: R$ " + s.calcularPreco(mel));
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("[FALHOU] 19. Criação dos serviços: " + e.getMessage());
+        }
+
+        // 20. Criar lista com os 3 serviços e pet null
+
+        for (Servico s : servicos) {
+            try {
+                s.calcularPreco(null);
+                System.out.println("[FALHOU] 20. " + s.getNome() + " aceitou pet null");
+            } catch (IllegalArgumentException e) {
+                System.out.println("[OK] 20. " + s.getNome() + " recusou pet null: " + e.getMessage());
+            }
+        }
+
     }
 }
