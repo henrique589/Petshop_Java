@@ -229,9 +229,9 @@ public class Main {
 
         try {
             concluido.cancelar();      // só a ação testada
-            System.out.println("[FALHOU] 24. ...");
+            System.out.println("[FALHOU] 24. Cancelou um agendamento já concluído!");
         } catch (IllegalStateException e) {
-            System.out.println("[OK] 24. ...");
+            System.out.println("[OK] 24. Não permitiu cancelar um agendamento já concluído!");
         }
     }
 }

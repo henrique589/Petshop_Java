@@ -3,7 +3,7 @@ package br.com.petshop.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class Agendamento {
+public class Agendamento implements Entidade{
     private Long id;
     private final Pet pet;
     private final Servico servico;
@@ -37,14 +37,14 @@ public class Agendamento {
     }
 
     public void concluir() {
-        if ((status != StatusAgendamento.AGENDADO)) {
+        if (status != StatusAgendamento.AGENDADO) {
             throw new IllegalStateException("Não é possível concluir um agendamento com status " +  status);
         }
         this.status = StatusAgendamento.CONCLUIDO;
     }
 
     public void cancelar() {
-        if ((status != StatusAgendamento.AGENDADO)) {
+        if (status != StatusAgendamento.AGENDADO) {
             throw new IllegalStateException("Não é possível cancelar um agendamento com status " +  status);
         }
         this.status = StatusAgendamento.CANCELADO;
