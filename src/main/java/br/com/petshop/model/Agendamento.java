@@ -50,6 +50,7 @@ public class Agendamento implements Entidade{
         this.status = StatusAgendamento.CANCELADO;
     }
 
+    @Override
     public Long getId() {
         return id;
     }
@@ -74,6 +75,7 @@ public class Agendamento implements Entidade{
         return valor;
     }
 
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
