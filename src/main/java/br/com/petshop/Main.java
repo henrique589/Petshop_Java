@@ -2,6 +2,7 @@ package br.com.petshop;
 
 import br.com.petshop.model.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class Main {
@@ -167,7 +168,7 @@ public class Main {
 
         System.out.println("\n=== ESTADO FINAL ===");
         System.out.println(tutor);
-        System.out.println("\\n=== SERVIÇOS ===");
+        System.out.println("\n=== SERVIÇOS ===");
 
         List<Servico> servicos = List.of(new Banho(), new Tosa(), new Consulta("Dra. Ana Laura"));
         // 19. Criar lista com os 3 serviços
@@ -190,5 +191,47 @@ public class Main {
             }
         }
 
+        System.out.println("\n=== AGENDAMENTO ===");
+
+        // 21. Criar agendamento
+
+        try {
+            Consulta consulta = new Consulta("Dra. Ana");
+            Agendamento agendamento = new Agendamento(rex, consulta, LocalDateTime.now().plusDays(1));
+            System.out.println("[OK] 21. " + agendamento.getStatus() + " " + agendamento.getValor());
+        } catch (IllegalArgumentException e) {
+            System.out.println("[FALHOU] 21. Erro na criação do agendamento " + e.getMessage());
+        }
+
+        // 22. Criar agendamento com data passada
+        try {
+            Banho banho = new Banho();
+            Agendamento agendamentoPassado = new Agendamento(rex, banho, LocalDateTime.now().minusDays(1));
+            System.out.println("[FALHOU] 22. Criou agendamento com data passada. " + agendamentoPassado);
+        } catch (IllegalArgumentException e) {
+            System.out.println("[OK] 22. Pegou erro na criação do agendamento com data passada " + e.getMessage());
+        }
+
+        Consulta consulta = new Consulta("Dra. Ana");
+        Agendamento agendamento = new Agendamento(rex, consulta, LocalDateTime.now().plusDays(1));
+
+        // 23. Concluir agendamento
+        try {
+            agendamento.concluir();
+            System.out.println("[OK] 23. Agendamento concluído " + agendamento);
+        } catch (IllegalStateException e) {
+            System.out.println("[FALHOU] 23. Erro na conclusão do agendamento " + e.getMessage());
+        }
+
+        // 24. Cancelar agendamento concluído
+        Agendamento concluido = new Agendamento(rex, consulta, LocalDateTime.now().plusDays(1));
+        concluido.concluir();
+
+        try {
+            concluido.cancelar();      // só a ação testada
+            System.out.println("[FALHOU] 24. ...");
+        } catch (IllegalStateException e) {
+            System.out.println("[OK] 24. ...");
+        }
     }
 }
