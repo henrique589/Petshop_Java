@@ -1,9 +1,14 @@
 package br.com.petshop;
 
 import br.com.petshop.model.*;
+import br.com.petshop.repository.Repositorio;
+import br.com.petshop.repository.RepositorioEmMemoria;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class Main {
     public static void main(String[] args) {
@@ -194,13 +199,12 @@ public class Main {
         System.out.println("\n=== AGENDAMENTO ===");
 
         // 21. Criar agendamento
-
-        try {
-            Consulta consulta = new Consulta("Dra. Ana");
-            Agendamento agendamento = new Agendamento(rex, consulta, LocalDateTime.now().plusDays(1));
+        Consulta consulta = new Consulta("Dra. Ana");
+        Agendamento agendamento = new Agendamento(rex, consulta, LocalDateTime.now().plusDays(1));
+        if ((agendamento.getStatus() == StatusAgendamento.AGENDADO) && agendamento.getValor().compareTo(new BigDecimal("150")) == 0) {
             System.out.println("[OK] 21. " + agendamento.getStatus() + " " + agendamento.getValor());
-        } catch (IllegalArgumentException e) {
-            System.out.println("[FALHOU] 21. Erro na criação do agendamento " + e.getMessage());
+        } else {
+            System.out.println("[FALHOU] 21. Erro na criação do agendamento ");
         }
 
         // 22. Criar agendamento com data passada
@@ -212,15 +216,16 @@ public class Main {
             System.out.println("[OK] 22. Pegou erro na criação do agendamento com data passada " + e.getMessage());
         }
 
-        Consulta consulta = new Consulta("Dra. Ana");
-        Agendamento agendamento = new Agendamento(rex, consulta, LocalDateTime.now().plusDays(1));
-
         // 23. Concluir agendamento
         try {
             agendamento.concluir();
-            System.out.println("[OK] 23. Agendamento concluído " + agendamento);
+            if (agendamento.getStatus() == StatusAgendamento.CONCLUIDO) {
+                System.out.println("[OK] 23. Agendamento concluído " + agendamento);
+            } else {
+                System.out.println("[FALHOU] 23. Erro na conclusão do agendamento");
+            }
         } catch (IllegalStateException e) {
-            System.out.println("[FALHOU] 23. Erro na conclusão do agendamento " + e.getMessage());
+            System.out.println("[FALHOU] 23. " + e.getMessage());
         }
 
         // 24. Cancelar agendamento concluído
@@ -233,5 +238,95 @@ public class Main {
         } catch (IllegalStateException e) {
             System.out.println("[OK] 24. Não permitiu cancelar um agendamento já concluído!");
         }
+
+        System.out.println("\n=== REPOSITÓRIO ===");
+
+        Repositorio<Pet> pets = new RepositorioEmMemoria<>();
+        // 25. Teste salvar 2 pets
+        try {
+            pets.salvar(rex);
+            pets.salvar(mel);
+            if (Objects.equals(rex.getId(), 1L) && Objects.equals(mel.getId(), 2L)) {
+                System.out.println("[OK] 25. Ids atribuídos: Rex=1, Mel=2");
+            } else {
+                System.out.println("[FALHOU] 25. Ids errados: Rex=" + rex.getId() + ", Mel=" + mel.getId());
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("[FALHOU] 25. " + e.getMessage());
+        }
+
+        // 26. Salvando pet null
+        try {
+            pets.salvar(null);
+            System.out.println("[FALHOU] 26. Salvou pet null! " + pets.listarTodos());
+        } catch (IllegalArgumentException e) {
+            System.out.println("[OK] 26. Não permitiu salvar pet null! " + e.getMessage());
+        }
+
+        // 27. Buscando o 'id' 1
+        Optional<Pet> petId1 = pets.buscarPorId(rex.getId());
+        if (petId1.isPresent() && petId1.get() == rex) {
+            System.out.println("[OK] 27. Encontrou o Rex pelo id " + rex.getId());
+        } else {
+            System.out.println("[FALHOU] 27. Não encontrou o Rex");
+        }
+
+        // 28. Buscando o 'id' 99
+        Optional<Pet> petId99 = pets.buscarPorId(99L);
+        if (petId99.isEmpty()) {
+            System.out.println("[OK] 28. Não encontrou 'id' não cadastrado");
+        } else {
+            System.out.println("[FALHOU] 28. Encontrou 'id' não cadastrado");
+        }
+
+        // 29. Removendo 'id' = 1
+        try {
+            pets.remover(rex.getId());
+            if (pets.listarTodos().size() == 1 && pets.listarTodos().contains(mel)) {
+                System.out.println("[OK] 29. Removeu pet 'id'=1 e só sobrou um elemento na lista");
+            } else {
+                System.out.println("[FALHOU] 29. Não removeu elemento de 'id'=1");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("[FALHOU] 29. " + e.getMessage());
+        }
+
+        // 30. Salvar o mesmo pet duas vezes
+        Long idAntes = mel.getId();
+        int tamanhoAntes = pets.listarTodos().size();
+        try {
+            pets.salvar(mel);
+            if (Objects.equals(mel.getId(), idAntes) && pets.listarTodos().size() == tamanhoAntes) {
+                System.out.println("[OK] 30. Salvar de novo manteve o id " + idAntes + " e não duplicou");
+            } else {
+                System.out.println("[FALHOU] 30. Id: " + mel.getId() + ", tamanho: " + pets.listarTodos().size());
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("[FALHOU] 30. " + e.getMessage());
+        }
+
+        // 31. Remover um 'id' inexistente na base
+        try {
+            pets.remover(99L);
+            System.out.println("[FALHOU] 31. Deixou remover 'id' inexistente");
+        } catch (IllegalArgumentException e) {
+            System.out.println("[OK] 31. Pegou erro de remover 'id' inexistente " + e.getMessage());
+        }
+
+        // 32. Tentar adicionar elemento na lista
+        try {
+            pets.listarTodos().add(mel);
+            System.out.println("[FALHOU] 32. Permitiu adicionar elemento na lista");
+        } catch (UnsupportedOperationException e) {
+            System.out.println("[OK] 32. Pegou erro de tentar adicionar elemento de forma 'ilegal'");
+        }
+
+        Repositorio<Tutor> tutores = new RepositorioEmMemoria<>();
+        tutores.salvar(tutor);
+
+        System.out.println(agendamento);
+        System.out.println(tutor);
+        System.out.println(pets.listarTodos());
+
     }
 }

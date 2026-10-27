@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Tutor implements Entidade{
+public class Tutor implements Entidade {
     private Long id;
     private final String nome;
     private final String sobrenome;
@@ -60,11 +60,11 @@ public class Tutor implements Entidade{
     }
 
     public void adicionarPet(Pet pet) {
-        if (pet == null){
+        if (pet == null) {
             throw new IllegalArgumentException("Você deve cadastrar um pet válido!");
         }
         if (pesquisaPet(pet)) {
-            throw new IllegalArgumentException("O pet já está cadastrado! " + pet.toString());
+            throw new IllegalArgumentException("O pet já está cadastrado! " + pet);
         }
         this.pets.add(pet);
     }

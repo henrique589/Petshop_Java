@@ -1,6 +1,6 @@
 package br.com.petshop.model;
 
-public class Pet implements Entidade{
+public class Pet implements Entidade {
     private Long id;
     private String nome;
     private final Especie especie;
